@@ -18,6 +18,9 @@ export interface BarTask extends Task {
     progressColor: string;
     progressSelectedColor: string;
   };
+  indicatorBackgroundColor: string;
+  indicatorFillColor:string;
+  indicatorImageSvg: any;
 }
 
 export type TaskTypeInternal = TaskType | "smalltask";
