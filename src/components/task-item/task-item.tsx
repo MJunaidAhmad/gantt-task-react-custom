@@ -65,7 +65,7 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
     const width = task.x2 - task.x1;
     
     // return task.x1 + 20 ;
-    return width>240? task.x1+120+10 :task.x1 + Math.round((width)/8)*4 +10
+    return width>240? task.x1+120+ (task.name?.split(' ')[0]?.length > 10? (task.name?.split(' ')[0]?.length-10)* 4:10 ) :task.x1 + Math.round((width)/8)*4 +10
     
   };
 
@@ -100,7 +100,7 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
       
 <svg
    x={task.x1+6} 
-  y={task.y + taskHeight * 0.5 - 12}
+  y={task.y + taskHeight * 0.5 - 11}
   width="22"
   height="22"
   viewBox="0 0 36 36"
@@ -118,7 +118,7 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
         }
         ref={textRef}
       >
-        {task.x2 - task.x1 >240 ?task.name: task?.name?.slice(0, Math.round((task.x2 - task.x1)/8)-3)+'...'}
+        {task.x2 - task.x1 >240 ?task.name: task.x2 - task.x1 <40 ? '': task?.name?.slice(0, Math.round((task.x2 - task.x1)/8)-3)+'...'}
       </text>
     </g>
   );
