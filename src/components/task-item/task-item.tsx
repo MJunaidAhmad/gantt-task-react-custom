@@ -9,13 +9,11 @@ import style from "./task-list.module.css";
 
 export type TaskItemProps = {
   task: BarTask;
-  arrowIndent: number;
   taskHeight: number;
   isProgressChangeable: boolean;
   isDateChangeable: boolean;
   isDelete: boolean;
   isSelected: boolean;
-  rtl: boolean;
   onEventStart: (
     action: GanttContentMoveAction,
     selectedTask: BarTask,
@@ -26,18 +24,19 @@ export type TaskItemProps = {
 export const TaskItem: React.FC<TaskItemProps> = props => {
   const {
     task,
-    arrowIndent,
     isDelete,
     taskHeight,
     isSelected,
-    rtl,
     onEventStart,
   } = {
     ...props,
   };
+  if(task?.name == 'Requested - ISDAR-PTW-00000011'){
+    
+  }
   const textRef = useRef<SVGTextElement>(null);
   const [taskItem, setTaskItem] = useState<JSX.Element>(<div />);
-  const [isTextInside, setIsTextInside] = useState(true);
+  // const [isTextInside, setIsTextInside] = useState(true);
 
   useEffect(() => {
     switch (task.typeInternal) {
@@ -58,26 +57,16 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
 
   useEffect(() => {
     if (textRef.current) {
-      setIsTextInside(textRef.current.getBBox().width < task.x2 - task.x1);
+      // setIsTextInside(textRef.current.getBBox().width < task.x2 - task.x1);
     }
   }, [textRef, task]);
 
   const getX = () => {
     const width = task.x2 - task.x1;
-    const hasChild = task.barChildren.length > 0;
-    if (isTextInside) {
-      return task.x1 + width * 0.5;
-    }
-    if (rtl && textRef.current) {
-      return (
-        task.x1 -
-        textRef.current.getBBox().width -
-        arrowIndent * +hasChild -
-        arrowIndent * 0.2
-      );
-    } else {
-      return task.x1 + width + arrowIndent * +hasChild + arrowIndent * 0.2;
-    }
+    
+    // return task.x1 + 20 ;
+    return width>240? task.x1+120+10 :task.x1 + Math.round((width)/8)*4 +10
+    
   };
 
   return (
@@ -108,17 +97,28 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
       }}
     >
       {taskItem}
+      
+<svg
+   x={task.x1+6} 
+  y={task.y + taskHeight * 0.5 - 12}
+  width="22"
+  height="22"
+  viewBox="0 0 36 36"
+  style={{ fill: 'none'}}
+>
+{task.indicatorImageSvg}
+ 
+</svg>
       <text
         x={getX()}
         y={task.y + taskHeight * 0.5}
         className={
-          isTextInside
-            ? style.barLabel
-            : style.barLabel && style.barLabelOutside
+         style.barLabel
+           
         }
         ref={textRef}
       >
-        {task.name}
+        {task.x2 - task.x1 >240 ?task.name: task?.name?.slice(0, Math.round((task.x2 - task.x1)/8)-3)+'...'}
       </text>
     </g>
   );
