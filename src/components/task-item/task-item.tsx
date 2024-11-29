@@ -31,9 +31,7 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
   } = {
     ...props,
   };
-  if(task?.name == 'Requested - ISDAR-PTW-00000011'){
-    
-  }
+
   const textRef = useRef<SVGTextElement>(null);
   const [taskItem, setTaskItem] = useState<JSX.Element>(<div />);
   // const [isTextInside, setIsTextInside] = useState(true);
@@ -65,7 +63,7 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
     const width = task.x2 - task.x1;
     
     // return task.x1 + 20 ;
-    return width>240? task.x1+120+ (task.name?.split(' ')[0]?.length > 10? (task.name?.split(' ')[0]?.length-10)* 4:10 ) :task.x1 + Math.round((width)/8)*4 +10
+    return width>240?task.x1 + 90 + ((task.name.length - 6)* 1.95):task.x1 + Math.round((width)/8)*4 +10
     
   };
 
@@ -98,17 +96,7 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
     >
       {taskItem}
       
-<svg
-   x={task.x1+6} 
-  y={task.y + taskHeight * 0.5 - 11}
-  width="22"
-  height="22"
-  viewBox="0 0 36 36"
-  style={{ fill: 'none'}}
->
-{task.indicatorImageSvg}
- 
-</svg>
+
       <text
         x={getX()}
         y={task.y + taskHeight * 0.5}
@@ -120,6 +108,17 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
       >
         {task.x2 - task.x1 >240 ?task.name: task.x2 - task.x1 <40 ? '': task?.name?.slice(0, Math.round((task.x2 - task.x1)/8)-3)+'...'}
       </text>
+      <svg
+   x={task.x1+6} 
+  y={task.y + taskHeight * 0.5 - 10.5}
+  width="22"
+  height="22"
+  viewBox="0 0 36 36"
+  style={{ fill: 'none'}}
+>
+{task.indicatorImageSvg}
+ 
+</svg>
     </g>
   );
 };
