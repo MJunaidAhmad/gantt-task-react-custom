@@ -55,6 +55,7 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
   arrowIndent = 20,
   todayColor = "rgba(252, 248, 227, 0.5)",
   viewDate,
+  currentScrollY=0,
   TooltipContent = StandardTooltipContent,
   TaskListHeader = TaskListHeaderDefault,
   TaskListTable = TaskListTableDefault,
@@ -66,6 +67,7 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
   onSelect,
   onExpanderClick,
 }) => {
+  
   const wrapperRef = useRef<HTMLDivElement>(null);
   const taskListRef = useRef<HTMLDivElement>(null);
   const [dateSetup, setDateSetup] = useState<DateSetup>(() => {
@@ -75,7 +77,6 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
   const [currentViewDate, setCurrentViewDate] = useState<Date | undefined>(
     undefined
   );
-
   const [taskListWidth, setTaskListWidth] = useState(0);
   const [svgContainerWidth, setSvgContainerWidth] = useState(0);
   const [svgContainerHeight, setSvgContainerHeight] = useState(ganttHeight);
@@ -87,14 +88,16 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
     () => (rowHeight * barFill) / 100,
     [rowHeight, barFill]
   );
-
+  
   const [selectedTask, setSelectedTask] = useState<BarTask>();
   const [failedTask, setFailedTask] = useState<BarTask | null>(null);
-
+  
   const svgWidth = dateSetup.dates.length * columnWidth;
   const ganttFullHeight = barTasks.length * rowHeight;
-
-  const [scrollY, setScrollY] = useState(0);
+  
+  const [scrollY, setScrollY] = useState(currentScrollY||0);
+  console.log('currentScrollY: ', currentScrollY,"scrollY",scrollY);
+  
   const [scrollX, setScrollX] = useState(-1);
   const [ignoreScrollEvent, setIgnoreScrollEvent] = useState(false);
 
@@ -256,32 +259,49 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
 
   // scroll events
   useEffect(() => {
-    const handleWheel = (event: WheelEvent) => {
-      if (event.shiftKey || event.deltaX) {
-        const scrollMove = event.deltaX ? event.deltaX : event.deltaY;
-        let newScrollX = scrollX + scrollMove;
-        if (newScrollX < 0) {
-          newScrollX = 0;
-        } else if (newScrollX > svgWidth) {
-          newScrollX = svgWidth;
-        }
-        setScrollX(newScrollX);
-        event.preventDefault();
-      } else if (ganttHeight) {
-        let newScrollY = scrollY + event.deltaY;
-        if (newScrollY < 0) {
-          newScrollY = 0;
-        } else if (newScrollY > ganttFullHeight - ganttHeight) {
-          newScrollY = ganttFullHeight - ganttHeight;
-        }
-        if (newScrollY !== scrollY) {
-          setScrollY(newScrollY);
-          event.preventDefault();
-        }
-      }
+  
+    let isThrottled = false;
 
-      setIgnoreScrollEvent(true);
+    const handleWheel = (event: WheelEvent) => {
+        if (isThrottled) return;
+    
+        isThrottled = true;
+        setTimeout(() => {
+            isThrottled = false;
+        }, 100); // 100ms throttle delay
+    
+        if (event.shiftKey || event.deltaX) {
+            const scrollMove = event.deltaX ? event.deltaX : event.deltaY;
+            let newScrollX = scrollX + scrollMove;
+    
+            if (newScrollX < 0) {
+                newScrollX = 0;
+            } else if (newScrollX > svgWidth) {
+                newScrollX = svgWidth;
+            }
+    
+            console.log('newScrollX: ', newScrollX);
+            setScrollX(newScrollX);
+    
+            event.preventDefault();
+        } else if (ganttHeight) {
+            let newScrollY = scrollY + event.deltaY;
+    
+            if (newScrollY < 0) {
+                newScrollY = 0;
+            } else if (newScrollY > ganttFullHeight - ganttHeight + 50) {
+                newScrollY = ganttFullHeight - ganttHeight + 50;
+            }
+            if (newScrollY !== scrollY) {
+                setScrollY(newScrollY);
+                event.preventDefault();
+            }
+        }
+    
+        setIgnoreScrollEvent(true);
     };
+    
+    
 
     // subscribe if scroll is necessary
     wrapperRef.current?.addEventListener("wheel", handleWheel, {
@@ -300,6 +320,12 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
     ganttFullHeight,
   ]);
 
+  useEffect(()=>{
+    if(currentScrollY){
+      setScrollY(currentScrollY)
+    }
+  },[currentScrollY])
+  
   const handleScrollY = (event: SyntheticEvent<HTMLDivElement>) => {
     if (scrollY !== event.currentTarget.scrollTop && !ignoreScrollEvent) {
       setScrollY(event.currentTarget.scrollTop);
