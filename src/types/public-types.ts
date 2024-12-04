@@ -113,6 +113,7 @@ export interface StylingOption {
   arrowColor?: string;
   arrowIndent?: number;
   todayColor?: string;
+  currentScrollY?: number;
   TooltipContent?: React.FC<{
     task: Task;
     fontSize: string;
