@@ -14,6 +14,9 @@ export type TaskItemProps = {
   isDateChangeable: boolean;
   isDelete: boolean;
   isSelected: boolean;
+  arrowIndent:number;
+  rtl:boolean;
+  setMousePointerBar: React.Dispatch<React.SetStateAction<number>>;
   onEventStart: (
     action: GanttContentMoveAction,
     selectedTask: BarTask,
@@ -28,9 +31,11 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
     taskHeight,
     isSelected,
     onEventStart,
+    setMousePointerBar
   } = {
     ...props,
   };
+  const [position, setPosition] = useState(0);
 
   const textRef = useRef<SVGTextElement>(null);
   const [taskItem, setTaskItem] = useState<JSX.Element>(<div />);
@@ -67,8 +72,17 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
     
   };
 
+  const handleMouseEnter = (event:any) => {
+    const rect = event.currentTarget.getBoundingClientRect(); // Get element boundaries
+    const relativeX = event.clientX - rect.left; // Mouse X position relative to the element
+    setPosition(relativeX);
+    setMousePointerBar(relativeX)
+    console.log(`Mouse entered at X: ${relativeX}px`,position);
+  };
+
   return (
     <g
+    
       onKeyDown={e => {
         switch (e.key) {
           case "Delete": {
@@ -79,6 +93,8 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
         e.stopPropagation();
       }}
       onMouseEnter={e => {
+        console.log('mouse entered>>>',e);
+        handleMouseEnter(e)
         onEventStart("mouseenter", task, e);
       }}
       onMouseLeave={e => {

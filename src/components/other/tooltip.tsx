@@ -17,6 +17,7 @@ export type TooltipProps = {
   rowHeight: number;
   fontSize: string;
   fontFamily: string;
+  mousePointerBar:number;
   TooltipContent: React.FC<{
     task: Task;
     fontSize: string;
@@ -37,7 +38,10 @@ export const Tooltip: React.FC<TooltipProps> = ({
   headerHeight,
   taskListWidth,
   TooltipContent,
+  mousePointerBar
 }) => {
+  console.log('task: >>>', task);
+  console.log('scrollX:>>> Tooltip', scrollX);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const [relatedY, setRelatedY] = useState(0);
   const [relatedX, setRelatedX] = useState(0);
@@ -59,21 +63,25 @@ export const Tooltip: React.FC<TooltipProps> = ({
           newRelatedY += rowHeight;
         }
       } else {
-        newRelatedX = task.x2 + arrowIndent * 1.5 + taskListWidth - scrollX;
-        const tooltipLeftmostPoint = tooltipWidth + newRelatedX;
-        const fullChartWidth = taskListWidth + svgContainerWidth;
-        if (tooltipLeftmostPoint > fullChartWidth) {
-          newRelatedX =
-            task.x1 +
-            taskListWidth -
-            arrowIndent * 1.5 -
-            scrollX -
-            tooltipWidth;
+        const calX=task.x2 + arrowIndent * 1.5 + taskListWidth - scrollX- (task.x2-task.x1) + mousePointerBar;
+        newRelatedX = calX
+        if(calX<40){
+          newRelatedX=newRelatedX+40
         }
-        if (newRelatedX < taskListWidth) {
-          newRelatedX = svgContainerWidth + taskListWidth - tooltipWidth;
-          newRelatedY += rowHeight;
-        }
+        // const tooltipLeftmostPoint = tooltipWidth + newRelatedX;
+        // const fullChartWidth = taskListWidth + svgContainerWidth;
+        // if (tooltipLeftmostPoint > fullChartWidth) {
+        //   newRelatedX =
+        //     task.x1 +
+        //     taskListWidth -
+        //     arrowIndent * 1.5 -
+        //     scrollX -
+        //     tooltipWidth;
+        // }
+        // if (newRelatedX < taskListWidth) {
+        //   newRelatedX = svgContainerWidth + taskListWidth - tooltipWidth;
+        //   newRelatedY += rowHeight;
+        // }
       }
 
       const tooltipLowerPoint = tooltipHeight + newRelatedY - scrollY;
