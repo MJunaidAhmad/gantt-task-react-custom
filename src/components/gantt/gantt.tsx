@@ -67,7 +67,6 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
   onSelect,
   onExpanderClick,
 }) => {
-  
   const wrapperRef = useRef<HTMLDivElement>(null);
   const taskListRef = useRef<HTMLDivElement>(null);
   const [dateSetup, setDateSetup] = useState<DateSetup>(() => {
@@ -77,6 +76,8 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
   const [currentViewDate, setCurrentViewDate] = useState<Date | undefined>(
     undefined
   );
+  const [mousePointerBar,setMousePointerBar]=useState(0)
+  console.log('mousePointerBar: ', mousePointerBar);
   const [taskListWidth, setTaskListWidth] = useState(0);
   const [svgContainerWidth, setSvgContainerWidth] = useState(0);
   const [svgContainerHeight, setSvgContainerHeight] = useState(ganttHeight);
@@ -94,6 +95,7 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
   
   const svgWidth = dateSetup.dates.length * columnWidth;
   const ganttFullHeight = barTasks.length * rowHeight;
+  console.log('ganttFullHeight: ', ganttFullHeight);
   
   const [scrollY, setScrollY] = useState(currentScrollY||0);
   console.log('currentScrollY: ', currentScrollY,"scrollY",scrollY);
@@ -289,8 +291,8 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
     
             if (newScrollY < 0) {
                 newScrollY = 0;
-            } else if (newScrollY > ganttFullHeight - ganttHeight + 50) {
-                newScrollY = ganttFullHeight - ganttHeight + 50;
+            } else if (newScrollY > ganttFullHeight - ganttHeight ) {
+                newScrollY = ganttFullHeight - ganttHeight;
             }
             if (newScrollY !== scrollY) {
                 setScrollY(newScrollY);
@@ -455,6 +457,7 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
     onDoubleClick,
     onClick,
     onDelete,
+    setMousePointerBar
   };
 
   const tableProps: TaskListProps = {
@@ -491,6 +494,7 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
           ganttHeight={ganttHeight}
           scrollY={scrollY}
           scrollX={scrollX}
+          setMousePointerBar={setMousePointerBar}
         />
         {ganttEvent.changedTask && (
           <Tooltip
@@ -508,6 +512,7 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
             TooltipContent={TooltipContent}
             rtl={rtl}
             svgWidth={svgWidth}
+            mousePointerBar={mousePointerBar}
           />
         )}
         <VerticalScroll
